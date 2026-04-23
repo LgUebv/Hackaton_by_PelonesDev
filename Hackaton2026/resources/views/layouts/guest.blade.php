@@ -22,7 +22,7 @@
                         
                         <div class="shrink-0 flex items-center">
                             <a href="{{ route('dashboard') }}" class="text-xl font-extrabold text-blue-600 flex items-center gap-2">
-                                <i class="fas fa-tasks"></i> Sistema de Tareas
+                                <i class="fas fa-tasks"></i> CoreTasks
                             </a>
                         </div>
 

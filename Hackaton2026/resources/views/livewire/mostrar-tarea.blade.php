@@ -8,7 +8,7 @@
     abrirDetalles(tarea) {
         if (this.corriendo && this.tareaActiva && this.tareaActiva.id === tarea.id) {
             this.modalAbierto = true;
-            return; 
+            return;
         }
 
         this.tareaActiva = tarea;
@@ -22,7 +22,7 @@
 
         let tiempoString = this.tareaActiva.tiempoAsignado.toString();
         let partes = tiempoString.split(':');
-        
+
         if (partes.length === 3) {
             let h = parseInt(partes[0]) || 0;
             let m = parseInt(partes[1]) || 0;
@@ -42,7 +42,9 @@
                 clearInterval(this.intervalo);
                 this.corriendo = false;
                 alert('¡Tiempo terminado!');
-                // $wire.finalizarTarea(this.tareaActiva.id); 
+                $wire.finalizarTarea(this.tareaActiva.id);
+
+                this.modalAbierto = false;
             }
         }, 1000);
     },
@@ -65,7 +67,7 @@
     <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                
+
                 <thead class="bg-gray-100">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tarea</th>
@@ -140,12 +142,12 @@
 
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 class="text-xl font-extrabold text-gray-800" x-text="tareaActiva?.nombreTarea"></h3>
-                
+
                 <button x-show="!corriendo" @click="modalAbierto = false" class="text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
             </div>
 
             <div class="p-6 space-y-4">
-                
+
                 <div x-show="corriendo" class="text-center pb-2">
                     <span class="text-xs font-bold text-red-500 uppercase tracking-widest animate-pulse">🔴 Modo Concentración Activo</span>
                 </div>
@@ -172,7 +174,7 @@
             </div>
 
             <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
-                
+
                 <button x-show="!corriendo" @click="modalAbierto = false" class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-semibold transition">
                     Cerrar
                 </button>

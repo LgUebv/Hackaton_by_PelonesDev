@@ -11,9 +11,20 @@ class MostrarTarea extends Component
     {
         return view('livewire.mostrar-tarea', [
             'tareas' => Tarea::where('status', 'pendiente')
-                ->orderBy('importancia', 'desc')
+                ->orderBy('importancia', 'asc')
                 ->orderBy('fechaHora', 'asc')
                 ->get(),
         ]);
+    }
+
+    public function finalizarTarea($tareaId)
+    {
+        $tarea = Tarea::find($tareaId);
+        if ($tarea) {
+            $tarea->status = 'finalizado';
+            $tarea->save();
+        }
+
+        $this->dispatch('notify', 'Tarea finalizada con exito');
     }
 }

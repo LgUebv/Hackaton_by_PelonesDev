@@ -1,4 +1,52 @@
-<div x-data="{ modalAbierto: false, tareaActiva: null }" class="p-6 min-h-screen bg-gray-50">
+<div x-data="{
+    modalAbierto: false,
+    tareaActiva: null,
+    segundos: 0,
+    corriendo: false,
+    intervalo: null,
+
+    abrirDetalles(tarea) {
+        this.tareaActiva = tarea;
+        this.modalAbierto = true;
+        // Reseteamos el cronómetro al abrir una nueva tarea
+        this.corriendo = false;
+        if(this.intervalo) clearInterval(this.intervalo);
+    },
+
+    iniciarCronometro() {
+        if (this.corriendo || !this.tareaActiva.tiempoAsignado) return;
+
+        let partes = this.tareaActiva.tiempoAsignado.split(':');
+        let h = parseInt(partes[0]) || 0;
+        let m = parseInt(partes[1]) || 0;
+        let s = parseInt(partes[2]) || 0;
+
+        this.segundos = (h * 3600) + (m * 60) + s;
+
+        if (this.segundos <= 0) return;
+
+        this.corriendo = true;
+        this.intervalo = setInterval(() => {
+            if (this.segundos > 0) {
+                this.segundos--;
+            } else {
+                clearInterval(this.intervalo);
+                this.corriendo = false;
+                alert('¡Tiempo terminado!');
+                $wire.finalizarTarea(this.tareaActiva.id);
+            }
+        }, 1000);
+    },
+
+    formatTime() {
+        let h = Math.floor(this.segundos / 3600);
+        let m = Math.floor((this.segundos % 3600) / 60);
+        let s = this.segundos % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+}" class="p-6 min-h-screen bg-gray-50">
+
+
 
     <div class="mb-8 flex justify-between items-center max-w-6xl mx-auto">
         <h1 class="text-3xl font-extrabold text-gray-900">Lista de Tareas</h1>
@@ -63,7 +111,7 @@
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button @click="tareaActiva = {{ json_encode($tarea) }}; modalAbierto = true"
+                                <button @click="abrirDetalles({{ json_encode($tarea) }})"
                                         class="text-indigo-600 hover:text-indigo-900 font-bold bg-indigo-50 px-3 py-1 rounded hover:bg-indigo-100 transition">
                                     Ver detalles
                                 </button>
@@ -89,6 +137,10 @@
             </div>
 
             <div class="p-6 space-y-4">
+                <div x-show="corriendo" class="text-center py-4 bg-indigo-50 rounded-xl mb-4">
+                    <span class="text-4xl font-mono font-bold text-indigo-600" x-text="formatTime()"></span>
+                </div>
+
                 <div>
                     <h4 class="text-xs uppercase font-bold text-gray-400 tracking-wider mb-1">Descripción</h4>
                     <p class="text-gray-700" x-text="tareaActiva?.descripcion || 'Sin descripción detallada.'"></p>
@@ -111,7 +163,8 @@
                     Cerrar
                 </button>
 
-                <button x-show="tareaActiva?.status === 'pendiente'"
+                <button x-show="tareaActiva?.status === 'pendiente' && !corriendo"
+                        @click="iniciarCronometro()"
                         class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow transition flex items-center gap-2">
                     <span>▶ Iniciar Tarea</span>
                 </button>
